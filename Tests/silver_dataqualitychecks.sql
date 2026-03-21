@@ -76,3 +76,7 @@ prd_end_dt
 FROM Bronze.crm_prd_info
  WHERE REPLACE(SUBSTRING(prd_key,1,5),'-','_') NOT IN
  (SELECT distinct id FROM bronze.erp_PX_CAT_G1V2);
+ALTER TABLE Silver.erp_CUST_AZ12
+ADD cid_last5 VARCHAR(5);
+UPDATE Silver.erp_CUST_AZ12
+SET cid_last5 = RIGHT(CAST([CID] AS VARCHAR(50)), 5);
