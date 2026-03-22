@@ -95,3 +95,24 @@ ADD subcat VARCHAR(100);
 UPDATE Silver.erp_PX_CAT_G1V2
 SET subcat      = LEFT(MAINTENANCE, CHARINDEX(',', MAINTENANCE) - 1),
     MAINTENANCE = LTRIM(SUBSTRING(MAINTENANCE, CHARINDEX(',', MAINTENANCE) + 1, LEN(MAINTENANCE)));
+ 
+			SELECT	
+			ci.cst_gndr,
+			az.GEN,
+			CASE WHEN ci.cst_gndr !='n/a' THEN ci.cst_gndr --CRM IS THE MASTER FOR GENDER INFO
+			     ELSE COALESCE(az.GEN,'n/a')
+			END AS new_gen
+			FROM Silver.crm_cust_info ci
+			LEFT JOIN Silver.erp_CUST_AZ12 az
+			ON RIGHT(CAST(ci.cst_key AS VARCHAR(50)), 5) = az.cid_last5
+			LEFT JOIN Silver.erp_LOC_A101 la
+			ON   RIGHT(CAST(ci.cst_key AS VARCHAR(50)), 5)=la.cid_new
+-- Add the new column
+ALTER TABLE Silver.crm_prd_info
+ADD new_prd_key NVARCHAR(50);
+
+-- Update it with the last 9 characters from prd_key
+UPDATE Silver.crm_prd_info
+SET new_prd_key = RIGHT(prd_key, 9);
+
+
